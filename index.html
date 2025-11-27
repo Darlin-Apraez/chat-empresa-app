@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat Empresarial MVP</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+    #chat {
+      width: 400px;
+      height: 350px;
+      background: white;
+      border-radius: 10px;
+      padding: 10px;
+      overflow-y: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    #inputArea {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    #messageInput {
+      flex: 1;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    #nameInput {
+      padding: 6px;
+      border-radius: 5px;
+      border: 1px solid #999;
+      width: 250px;
+      margin-bottom: 15px;
+    }
+    .msg {
+      margin: 5px 0;
+      padding: 6px 10px;
+      border-radius: 8px;
+      max-width: 80%;
+    }
+    .yo {
+      background: #007bff;
+      color: white;
+      align-self: flex-end;
+    }
+    .otro {
+      background: #eaeaea;
+      color: #333;
+      align-self: flex-start;
+    }
+    .sistema {
+      text-align: center;
+      color: #777;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <h2>💬 Chat Empresarial MVP</h2>
+  <input id="nameInput" placeholder="Ingresa tu nombre..." />
+  <button onclick="iniciarChat()">Entrar</button>
+
+  <div id="chat" style="display:none;"></div>
+
+  <div id="inputArea" style="display:none;">
+    <input id="messageInput" placeholder="Escribe un mensaje..." />
+    <button onclick="enviarMensaje()">Enviar</button>
+  </div>
+
+  <script>
+    let socket;
+    let miNombre = '';
+
+    function iniciarChat() {
+      miNombre = document.getElementById('nameInput').value.trim();
+      if (miNombre === '') {
+        alert('Por favor ingresa un nombre');
+        return;
+      }
+
+      document.getElementById('nameInput').style.display = 'none';
+      document.querySelector('button').style.display = 'none';
+      document.getElementById('chat').style.display = 'flex';
+      document.getElementById('inputArea').style.display = 'flex';
+
+      socket = io("http://localhost:4000");
+      socket.emit('nuevoUsuario', miNombre);
+
+      socket.on('mensaje', (data) => {
+        mostrarMensaje(data.usuario, data.texto);
+      });
+    }
+
+    function enviarMensaje() {
+      const input = document.getElementById('messageInput');
+      const mensaje = input.value.trim();
+      if (mensaje !== '') {
+        socket.emit('mensaje', mensaje);
+        mostrarMensaje(miNombre, mensaje, true);
+        input.value = '';
+      }
+    }
+
+    function mostrarMensaje(usuario, texto, soyYo = false) {
+      const chat = document.getElementById('chat');
+      const msg = document.createElement('div');
+
+      if (usuario === 'Servidor') {
+        msg.classList.add('sistema');
+        msg.textContent = texto;
+      } else {
+        msg.classList.add('msg');
+        msg.classList.add(soyYo ? 'yo' : 'otro');
+        msg.textContent = `${usuario}: ${texto}`;
+      }
+
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>

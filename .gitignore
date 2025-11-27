@@ -1,0 +1,13 @@
+# 1. Ignorar dependencias de Node en la raíz y en subdirectorios
+node_modules/
+
+# 2. Ignorar carpetas de build (producción)
+/build
+/dist
+
+# 3. Ignorar archivos de entorno (Contienen claves sensibles)
+.env
+.env.local
+
+# 4. Ignorar logs y archivos temporales
+npm-debug.log
