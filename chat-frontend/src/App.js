@@ -13,8 +13,13 @@ export default function App() {
     }
   };
 
+  const handleLogout = () => {
+    setUser(null);
+    console.log("Sesión cerrada. Volviendo al Login.");
+  };
+
   if (user) {
-    return <ChatRoom user={user} />;
+    return <ChatRoom user={user} onLogout={handleLogout} />;
   }
 
   return (
